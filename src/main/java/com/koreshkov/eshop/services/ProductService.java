@@ -26,7 +26,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public void saveProducts(Principal principal, Product product, MultipartFile file1, MultipartFile file2, MultipartFile file3) throws IOException {
+    public Product saveProducts(Principal principal, Product product, MultipartFile file1, MultipartFile file2, MultipartFile file3) throws IOException {
         product.setUser(getUserByPrincipal(principal));
         Image image1;
         Image image2;
@@ -44,10 +44,9 @@ public class ProductService {
             image3 = toImageEntity(file3);
             product.addImageToProduct(image3);
         }
-        log.info("Save new Product. Title: {}; Author email: {}", product.getTitle(), product.getUser().getEmail());
         Product productFromDb = productRepository.save(product);
         productFromDb.setPreviewImageId(productFromDb.getImages().get(0).getId());
-        productRepository.save(product);
+        return productRepository.save(product);
 
     }
 
@@ -66,7 +65,7 @@ public class ProductService {
         return image;
     }
 
-    public void deleteProduct(User user, Long id) {
+    public Product deleteProduct(User user, Long id) {
         Product product = productRepository.findById(id)
                 .orElse(null);
         if (product != null) {
@@ -79,6 +78,7 @@ public class ProductService {
         } else {
             log.error("Product with id = {} is not found", id);
         }
+        return product;
     }
 
     public Product getProductById(Long id) {
